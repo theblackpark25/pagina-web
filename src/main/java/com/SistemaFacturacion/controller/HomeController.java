@@ -1,11 +1,10 @@
-package com.sistemaFacturacion.frontend.controller;
+package com.SistemaFacturacion.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class HomeController {
-
     @GetMapping({"/", "/index"})
     public String index() { return "index"; }
 
@@ -13,5 +12,6 @@ public class HomeController {
     public String registro() { return "registro"; }
 
     @GetMapping("/comprobantes")
-    public String comprobantes() { return "comprobantes"; }
+    public String comprobantes() { return "comprobantes";
+    }
 }

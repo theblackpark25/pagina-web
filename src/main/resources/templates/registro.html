@@ -1,0 +1,214 @@
+    <!doctype html>
+    <html lang="es" xmlns:th="http://www.thymeleaf.org">
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Registro - Sistema de Facturación</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="/css/style.css">
+      </head>
+      <body>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+          <div class="container">
+            <a class="navbar-brand" href="/">SistemaFactura</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navmenu">
+              <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="/">Inicio</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/registro">Registro</a></li>
+                <li class="nav-item"><a class="nav-link" href="/comprobantes">Comprobantes</a></li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+
+        <main class="container my-4">
+          <div class="row justify-content-center">
+            <div class="col-md-7">
+              <div class="card shadow-sm">
+                <div class="card-body">
+                  <h3 class="card-title mb-3">Registro de usuario</h3>
+
+                  <form id="registroForm" novalidate>
+                    <div class="mb-3">
+                      <label for="dni" class="form-label">DNI</label>
+                      <input type="text" class="form-control" id="dni" pattern="\d{8}" required placeholder="8 dígitos">
+                      <button class="btn btn-outline-secondary" type="button" id="btnVerificar">Verificar</button>
+                      <div class="invalid-feedback" id="err-dni"></div>
+                    </div>
+                    <div class="mb-3">
+                      <label for="nombres" class="form-label">Nombres</label>
+                      <input type="text" class="form-control" id="nombres" required>
+                      <div class="invalid-feedback" id="err-nombres"></div>
+                    </div>
+
+                    <div class="mb-3">
+                      <label for="apellidos" class="form-label">Apellidos</label>
+                      <input type="text" class="form-control" id="apellidos" required>
+                      <div class="invalid-feedback" id="err-apellidos"></div>
+                    </div>
+
+                    <div class="mb-3">
+                      <label for="correo" class="form-label">Correo</label>
+                      <input type="email" class="form-control" id="correo" required>
+                      <div class="invalid-feedback" id="err-correo"></div>
+                    </div>
+
+                    <div class="mb-3">
+                      <label for="contrasena" class="form-label">Contraseña</label>
+                      <input type="password" class="form-control" id="contrasena" minlength="8" required>
+                      <div class="invalid-feedback" id="err-contrasena"></div>
+                    </div>
+
+
+
+                    <div class="d-flex justify-content-between align-items-center">
+                      <button id="btnRegistrar" class="btn btn-primary" type="button">Registrar</button>
+                      <a href="/" class="btn btn-link">Volver</a>
+                    </div>
+
+                    <div class="alert alert-success mt-3" id="msg-success" style="display:none">Registro realizado (simulado).</div>
+                    <div id="feedback" style="color: #b00; margin-top: 12px;"></div>
+                  </form>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+        const btnVerificar = document.getElementById('btnVerificar');
+        const dniInput = document.getElementById('dni');
+        const nombresInput = document.getElementById('nombres');
+        const apellidosInput = document.getElementById('apellidos');
+        const password = document.getElementById('contrasena');
+        const feedback = document.getElementById('feedback');
+
+        async function buscarNombrePorDni() {
+          feedback.textContent = '';
+          const dni = dniInput.value.trim();
+          if (!/^\d{8}$/.test(dni)) {
+            feedback.textContent = 'Introduce un DNI válido de 8 dígitos.';
+            return;
+          }
+
+          // UX: bloquear botón y mostrar texto
+          btnVerificar.disabled = true;
+          const originalText = btnVerificar.textContent;
+          btnVerificar.textContent = 'Consultando...';
+
+          try {
+            const res = await fetch('https://api.consultasperu.com/api/v1/query', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                token: 'bb22078befaa69aac1bcbac19efb3a122ba5d233a148bb041d320a4344a196c3',
+                type_document: 'dni',
+                document_number: dni,
+              }),
+            });
+
+            if (!res.ok) {
+              const txt = await res.text();
+              throw new Error(`HTTP ${res.status}: ${txt}`);
+            }
+
+            const data = await res.json();
+            console.log(data);
+            console.log(data.name);
+            console.log(data.surname);
+            // Mapea según la respuesta real de la API
+            nombresInput.value = data.data.name;
+            apellidosInput.value = data.data.surname;
+
+            feedback.style.color = '#080';
+            feedback.textContent = 'Datos cargados correctamente.';
+          } catch (err) {
+            console.error(err);
+            feedback.style.color = '#b00';
+            feedback.textContent = 'No se pudo obtener la información. Revisa la consola.';
+          } finally {
+            btnVerificar.disabled = false;
+            btnVerificar.textContent = originalText;
+          }
+        }
+
+        // conectar handler al botón (sin usar onclick inline)
+        btnVerificar.addEventListener('click', buscarNombrePorDni);
+
+        // opcional: permitir Enter cuando el foco esté en el input DNI
+        dniInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            buscarNombrePorDni();
+          }
+        });
+
+        // opcional: exponer en window para depuración (no necesario)
+        window.buscarNombrePorDni = buscarNombrePorDni;
+      });
+</script>
+        <script>
+          document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('registroForm');
+  const btn = document.getElementById('btnRegistrar');
+  const feedback = document.getElementById('feedback');
+
+  const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
+  const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content || 'X-CSRF-TOKEN';
+
+  btn.addEventListener('click', async () => {
+    feedback.textContent = '';
+
+    const payload = {
+      dni: document.getElementById('dni').value.trim(),
+      nombres: document.getElementById('nombres').value.trim(),
+      apellidos: document.getElementById('apellidos').value.trim(),
+      correo: document.getElementById('correo').value.trim(),
+      password: document.getElementById('contrasena').value
+    };
+
+    if (!/^\d{8}$/.test(payload.dni)) { feedback.textContent = 'DNI inválido'; return; }
+    if (!payload.nombres || !payload.apellidos) { feedback.textContent = 'Completa nombres/apellidos'; return; }
+    if (!/.+@.+\..+/.test(payload.correo)) { feedback.textContent = 'Correo inválido'; return; }
+    if (payload.password.length < 8) { feedback.textContent = 'Contraseña muy corta'; return; }
+
+    try {
+      btn.disabled = true;
+      btn.textContent = 'Guardando...';
+
+      const res = await fetch('/api/clientes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrfToken ? { [csrfHeader]: csrfToken } : {})
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        feedback.style.color = 'green';
+        feedback.textContent = 'Cliente guardado correctamente.';
+        form.reset();
+      } else {
+        const errText = await res.text();
+        feedback.style.color = 'red';
+        feedback.textContent = `Error: ${res.status} ${errText}`;
+      }
+    } catch (err) {
+      console.error(err);
+      feedback.style.color = 'red';
+      feedback.textContent = 'Error al conectar con el servidor.';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Guardar';
+    }
+  });
+});
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+      </body>
+    </html>

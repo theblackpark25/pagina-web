@@ -12,6 +12,8 @@ public class Clientes {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String dni;
-    private String name;
-    private String address;
+    private String nombres;
+    private String apellidos;
+    private String correo;
+    private String password;
 }
