@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Nuevo Comprobante</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="/">SistemaFactura</a>
+    </div>
+</nav>
+
+<main class="container py-4">
+    <h3 class="mb-4">Registrar Comprobante</h3>
+
+    <form>
+        <div class="mb-3">
+            <label class="form-label">Tipo de comprobante</label>
+            <select class="form-select">
+                <option>Boleta</option>
+                <option>Factura</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">DNI del cliente</label>
+            <input class="form-control" placeholder="8 dígitos">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Nombre del cliente</label>
+            <input class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Total</label>
+            <input type="number" class="form-control" step="0.01" value="0">
+        </div>
+
+        <button type="button" class="btn btn-primary">Guardar</button>
+        <a href="/comprobantes" class="btn btn-secondary">Cancelar</a>
+    </form>
+
+</main>
+</body>
+</html>
